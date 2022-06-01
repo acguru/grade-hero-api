@@ -266,15 +266,12 @@ module.exports = {
         data.suggested_writers.map((e) => {
             newdata.suggested_writers.push(e.value)
         });
-        let manager;
-        while (true) {// assign User-Editor room for the project
-                let count = await Manager.countDocuments().exec();
-                let random = Math.floor(Math.random() * count);
-                manager = await Manager.findOne().skip(random).populate('managertype').exec() // choose random editor
-                if (manager.managertype.name === 'editor') {
-                    break
-                }
-            }
+        const count = await Manager.countDocuments().exec();
+        const random = Math.floor(Math.random() * count);
+        const manager = await Manager.findOne().skip(random).populate({
+        path: "managertype",
+        match: { name: "editor" }
+        }).exec();
         let roominfo = await Chathelpers.saveRoom(newdata.user,manager._id,newdata.topic,newdata._id);
         newdata.room = roominfo.id;
         await newdata.save();
